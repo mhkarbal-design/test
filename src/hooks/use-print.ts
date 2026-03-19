@@ -9,10 +9,11 @@ export const usePrint = () => {
     return () => window.removeEventListener('afterprint', handleAfterPrint);
   }, []);
 
-  const print = useCallback(() => {
-    setIsPrinting(true);
-    setTimeout(() => window.print(), 0);
-  }, []);
+  useEffect(() => {
+    if (isPrinting) window.print();
+  }, [isPrinting]);
+
+  const print = useCallback(() => setIsPrinting(true), []);
 
   return { isPrinting, print };
 };

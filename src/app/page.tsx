@@ -1,6 +1,7 @@
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AccordionRoot, Box, Flex, Text } from '@ftv/ui';
+import { usePrint } from '../hooks/use-print';
 import { FooterActions } from '../components/footer-actions';
 import { ListItem } from '../components/list-item';
 import { useGetShiftsQuery } from '../models/graphql-types-hooks';
@@ -39,17 +40,7 @@ const Home: React.FC = () => {
     );
   }, [users, search]);
 
-  useEffect(() => {
-    const handleAfterPrint = () => setIsPrinting(false);
-    window.addEventListener('afterprint', handleAfterPrint);
-    return () => window.removeEventListener('afterprint', handleAfterPrint);
-  }, []);
-
-  useEffect(() => {
-    if (isPrinting) window.print();
-  }, [isPrinting]);
-
-  const handlePrintClick = () => setIsPrinting(true);
+  const { isPrinting, print: handlePrintClick } = usePrint();
 
   if (isError) {
     return (
