@@ -1,6 +1,6 @@
 'use client';
 import { AccordionRoot, Box, Text, Flex } from '@ftv/ui';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { FooterActions } from '../components/footer-actions';
 import { ListItem } from '../components/list-item';
 import { useGetShiftsQuery } from '../models/graphql-types-hooks';
@@ -10,7 +10,6 @@ const Home: React.FC = () => {
   const [searchValue, setSearchValue] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [openAccordionId, setOpenAccordionId] = useState('');
-  const [isPrinting, setIsPrinting] = useState(false);
 
   const { data, isLoading, isError } = useGetShiftsQuery({
     date: formatDateForQuery(selectedDate),
@@ -36,8 +35,7 @@ const Home: React.FC = () => {
   };
 
   const handlePrintClick = (): void => {
-    setIsPrinting(true);
-    setTimeout(() => window.print(), 0);
+    window.print();
   };
 
   const filteredUsers = users.filter(
@@ -45,12 +43,6 @@ const Home: React.FC = () => {
       user.name.toLowerCase().includes(searchValue.toLowerCase()) ||
       user.description.toLowerCase().includes(searchValue.toLowerCase()),
   );
-
-  useEffect(() => {
-    const handleAfterPrint = (): void => setIsPrinting(false);
-    window.addEventListener('afterprint', handleAfterPrint);
-    return () => window.removeEventListener('afterprint', handleAfterPrint);
-  }, []);
 
   return (
     <>
@@ -61,12 +53,6 @@ const Home: React.FC = () => {
               Une erreur est survenue lors du chargement des permanences.
             </Text>
           </Flex>
-        ) : isPrinting ? (
-          <AccordionRoot type="multiple" value={filteredUsers.map((u) => u.id)}>
-            {filteredUsers.map((user) => (
-              <ListItem key={user.id} user={user} />
-            ))}
-          </AccordionRoot>
         ) : (
           <AccordionRoot
             type="single"
