@@ -11,8 +11,6 @@ const Home: React.FC = () => {
   const [search, setSearch] = useState('');
   const [date, setDate] = useState(new Date());
   const [openAccordionId, setOpenAccordionId] = useState('');
-  const [isPrinting, setIsPrinting] = useState(false);
-
   const { data, isLoading, isError } = useGetShiftsQuery({
     date: formatDateForQuery(date),
   });
