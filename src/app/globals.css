@@ -1,0 +1,44 @@
+.print-only {
+  display: none !important;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  body .rt-r-position-sticky,
+  body [data-noprint],
+  .no-print {
+    display: none !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  [data-print-item] {
+    break-inside: avoid-page;
+  }
+
+  [data-radix-accordion-content][data-state="closed"] {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  [data-radix-accordion-content] button[data-accent-color="yellow"] {
+    all: unset;
+    font-weight: 600;
+  }
+
+  [data-radix-accordion-content] {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
