@@ -1,6 +1,6 @@
 'use client';
 import { AccordionRoot, Box, Text, Flex } from '@ftv/ui';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { FooterActions } from '../components/footer-actions';
 import { ListItem } from '../components/list-item';
 import { useGetShiftsQuery } from '../models/graphql-types-hooks';

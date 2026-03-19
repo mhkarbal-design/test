@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface FooterActionsProps {
   onDateChange: (date: Date) => void;
   onPrintClick: () => void;
