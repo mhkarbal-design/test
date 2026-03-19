@@ -1,6 +1,6 @@
 'use client';
 import { AccordionRoot, Box, Text, Flex } from '@ftv/ui';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FooterActions } from '../components/footer-actions';
 import { ListItem } from '../components/list-item';
 import { useGetShiftsQuery } from '../models/graphql-types-hooks';
@@ -10,37 +10,38 @@ const Home: React.FC = () => {
   const [searchValue, setSearchValue] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isPrinting, setIsPrinting] = useState(false);
-  const accordionValueRef = useRef<string>('');
+  const [openAccordionId, setOpenAccordionId] = useState('');
 
   const { data, isLoading, isError } = useGetShiftsQuery({
     date: formatDateForQuery(selectedDate),
   });
 
-  const shifts = data?.shifts ?? [];
-  const users = shifts.map((shift, index) => ({
-    id: `shift-${index}`,
-    name: `${shift.sPrenom ?? ''} ${shift.sNom}`.trim(),
-    description: shift.sFonction,
-    bureau: shift.sBureau,
-    telephone: shift.sTelephone,
-    portable: shift.sPortable,
-    professionnel: shift.sProfessionnel,
-  }));
-
-  const filteredUsers = users.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-      user.description.toLowerCase().includes(searchValue.toLowerCase()),
+  const users = useMemo(
+    () =>
+      (data?.shifts ?? []).map((shift, index) => ({
+        id: `shift-${index}`,
+        name: `${shift.sPrenom ?? ''} ${shift.sNom}`.trim(),
+        description: shift.sFonction,
+        bureau: shift.sBureau,
+        telephone: shift.sTelephone,
+        portable: shift.sPortable,
+        professionnel: shift.sProfessionnel,
+      })),
+    [data],
   );
 
-  useEffect(() => {
-    const handleBeforePrint = (): void => {
-      setIsPrinting(true);
-    };
+  const filteredUsers = useMemo(() => {
+    const search = searchValue.toLowerCase();
+    return users.filter(
+      (user) =>
+        user.name.toLowerCase().includes(search) ||
+        user.description.toLowerCase().includes(search),
+    );
+  }, [users, searchValue]);
 
-    const handleAfterPrint = (): void => {
-      setIsPrinting(false);
-    };
+  useEffect(() => {
+    const handleBeforePrint = (): void => setIsPrinting(true);
+    const handleAfterPrint = (): void => setIsPrinting(false);
 
     window.addEventListener('beforeprint', handleBeforePrint);
     window.addEventListener('afterprint', handleAfterPrint);
@@ -51,14 +52,6 @@ const Home: React.FC = () => {
     };
   }, []);
 
-  const handleSearchChange = (value: string): void => {
-    setSearchValue(value);
-  };
-
-  const handleDateChange = (date: Date): void => {
-    setSelectedDate(date);
-  };
-
   const handlePrintClick = (): void => {
     setIsPrinting(true);
     // Allow React to re-render with all accordions open before triggering print
@@ -66,8 +59,6 @@ const Home: React.FC = () => {
       window.print();
     }, 0);
   };
-
-  const allUserIds = filteredUsers.map((user) => user.id);
 
   return (
     <>
@@ -79,7 +70,7 @@ const Home: React.FC = () => {
             </Text>
           </Flex>
         ) : isPrinting ? (
-          <AccordionRoot type="multiple" value={allUserIds}>
+          <AccordionRoot type="multiple" value={filteredUsers.map((u) => u.id)}>
             {filteredUsers.map((user) => (
               <ListItem key={user.id} user={user} />
             ))}
@@ -87,10 +78,8 @@ const Home: React.FC = () => {
         ) : (
           <AccordionRoot
             type="single"
-            value={accordionValueRef.current}
-            onValueChange={(value) => {
-              accordionValueRef.current = value;
-            }}
+            value={openAccordionId}
+            onValueChange={setOpenAccordionId}
           >
             {isLoading
               ? Array.from({ length: 10 }).map((_, index) => (
@@ -113,9 +102,9 @@ const Home: React.FC = () => {
         )}
       </Box>
       <FooterActions
-        onDateChange={handleDateChange}
+        onDateChange={setSelectedDate}
         onPrintClick={handlePrintClick}
-        onSearchChange={handleSearchChange}
+        onSearchChange={setSearchValue}
       />
     </>
   );

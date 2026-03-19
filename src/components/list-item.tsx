@@ -20,20 +20,38 @@ interface User {
   professionnel?: string | null;
 }
 
+interface PhoneRowProps {
+  iconColor: string;
+  label: string;
+  number: string;
+}
+
+const PhoneRow: React.FC<PhoneRowProps> = ({ iconColor, label, number }) => (
+  <Flex align="center" justify="between" mt="3">
+    <Flex align="center">
+      <Icon color={iconColor} height="24" name="phone" width="24" />
+      <Text ml="1" size="2">
+        {label}
+      </Text>
+    </Flex>
+    <Button
+      color="yellow"
+      label={number}
+      onClick={() => window.open(`tel:${number}`)}
+      variant="solid"
+    />
+  </Flex>
+);
+
 interface ListItemProps {
   user?: User;
-  key?: string;
   loading?: boolean;
 }
 
-export const ListItem: React.FC<ListItemProps> = ({
-  user,
-  key,
-  loading = false,
-}) => (
+export const ListItem: React.FC<ListItemProps> = ({ user, loading = false }) => (
   <Box bg="white" borderCorner="all" m="3" p="3" data-print-item>
     <Skeleton loading={loading}>
-      <AccordionItem value={user?.id || key || ''}>
+      <AccordionItem value={user?.id ?? ''}>
         <AccordionTrigger asChild>
           <Flex align="center" justify="between">
             <Flex align="center" gap="3">
@@ -52,54 +70,15 @@ export const ListItem: React.FC<ListItemProps> = ({
         <AccordionContent>
           <Box bg="light-gray" borderCorner="all" mt="3" p="3" className="accordion-print-content">
             <Text size="3" weight="bold">Contact</Text>
-            {user?.telephone ? (
-              <Flex align="center" justify="between" mt="3">
-                <Flex align="center">
-                  <Icon color="gray" height="24" name="phone" width="24" />
-                  <Text ml="1" size="2">
-                    Téléphone
-                  </Text>
-                </Flex>
-                <Button
-                  color="yellow"
-                  label={user.telephone}
-                  onClick={() => window.open(`tel:${user.telephone}`)}
-                  variant="solid"
-                />
-              </Flex>
-            ) : null}
-            {user?.portable ? (
-              <Flex align="center" justify="between" mt="3">
-                <Flex align="center">
-                  <Icon color="blue" height="24" name="phone" width="24" />
-                  <Text ml="1" size="2">
-                    Portable
-                  </Text>
-                </Flex>
-                <Button
-                  color="yellow"
-                  label={user.portable}
-                  onClick={() => window.open(`tel:${user.portable}`)}
-                  variant="solid"
-                />
-              </Flex>
-            ) : null}
-            {user?.professionnel ? (
-              <Flex align="center" justify="between" mt="3">
-                <Flex align="center">
-                  <Icon color="red" height="24" name="phone" width="24" />
-                  <Text ml="1" size="2">
-                    Professionnel
-                  </Text>
-                </Flex>
-                <Button
-                  color="yellow"
-                  label={user.professionnel}
-                  onClick={() => window.open(`tel:${user.professionnel}`)}
-                  variant="solid"
-                />
-              </Flex>
-            ) : null}
+            {user?.telephone && (
+              <PhoneRow iconColor="gray" label="Téléphone" number={user.telephone} />
+            )}
+            {user?.portable && (
+              <PhoneRow iconColor="blue" label="Portable" number={user.portable} />
+            )}
+            {user?.professionnel && (
+              <PhoneRow iconColor="red" label="Professionnel" number={user.professionnel} />
+            )}
           </Box>
         </AccordionContent>
       </AccordionItem>
