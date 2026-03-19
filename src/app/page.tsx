@@ -1,5 +1,6 @@
 'use client';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { AccordionRoot, Box, Flex, Text } from '@ftv/ui';
 import { FooterActions } from '../components/footer-actions';
 import { ListItem } from '../components/list-item';
@@ -10,6 +11,7 @@ const Home: React.FC = () => {
   const [search, setSearch] = useState('');
   const [date, setDate] = useState(new Date());
   const [openAccordionId, setOpenAccordionId] = useState('');
+  const [isPrinting, setIsPrinting] = useState(false);
 
   const { data, isLoading, isError } = useGetShiftsQuery({
     date: formatDateForQuery(date),
@@ -38,6 +40,17 @@ const Home: React.FC = () => {
     );
   }, [users, search]);
 
+  useEffect(() => {
+    const handleAfterPrint = () => setIsPrinting(false);
+    window.addEventListener('afterprint', handleAfterPrint);
+    return () => window.removeEventListener('afterprint', handleAfterPrint);
+  }, []);
+
+  const handlePrintClick = () => {
+    flushSync(() => setIsPrinting(true));
+    window.print();
+  };
+
   if (isError) {
     return (
       <Flex align="center" direction="column" p="6">
@@ -51,11 +64,19 @@ const Home: React.FC = () => {
   return (
     <>
       <Box pb="8">
-        <AccordionRoot type="single" value={openAccordionId} onValueChange={setOpenAccordionId}>
-          {isLoading
-            ? Array.from({ length: 10 }, (_, i) => <ListItem key={i} loading />)
-            : filteredUsers.map((user) => <ListItem key={user.id} user={user} />)}
-        </AccordionRoot>
+        {isPrinting ? (
+          <AccordionRoot type="multiple" value={filteredUsers.map((u) => u.id)}>
+            {filteredUsers.map((user) => (
+              <ListItem key={user.id} user={user} />
+            ))}
+          </AccordionRoot>
+        ) : (
+          <AccordionRoot type="single" value={openAccordionId} onValueChange={setOpenAccordionId}>
+            {isLoading
+              ? Array.from({ length: 10 }, (_, i) => <ListItem key={i} loading />)
+              : filteredUsers.map((user) => <ListItem key={user.id} user={user} />)}
+          </AccordionRoot>
+        )}
         {!isLoading && filteredUsers.length === 0 && (
           <Flex align="center" direction="column" p="6">
             <Text size="3">
@@ -68,7 +89,7 @@ const Home: React.FC = () => {
       </Box>
       <FooterActions
         onDateChange={setDate}
-        onPrintClick={() => window.print()}
+        onPrintClick={handlePrintClick}
         onSearchChange={setSearch}
       />
     </>
