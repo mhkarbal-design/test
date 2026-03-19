@@ -9,8 +9,8 @@ import { formatDateForQuery } from '../helpers/date-formatter';
 const Home: React.FC = () => {
   const [searchValue, setSearchValue] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isPrinting, setIsPrinting] = useState(false);
   const [openAccordionId, setOpenAccordionId] = useState('');
+  const [isPrinting, setIsPrinting] = useState(false);
 
   const { data, isLoading, isError } = useGetShiftsQuery({
     date: formatDateForQuery(selectedDate),
@@ -27,30 +27,6 @@ const Home: React.FC = () => {
     professionnel: shift.sProfessionnel,
   }));
 
-  const filteredUsers = users.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-      user.description.toLowerCase().includes(searchValue.toLowerCase()),
-  );
-
-  useEffect(() => {
-    const handleBeforePrint = (): void => {
-      setIsPrinting(true);
-    };
-
-    const handleAfterPrint = (): void => {
-      setIsPrinting(false);
-    };
-
-    window.addEventListener('beforeprint', handleBeforePrint);
-    window.addEventListener('afterprint', handleAfterPrint);
-
-    return () => {
-      window.removeEventListener('beforeprint', handleBeforePrint);
-      window.removeEventListener('afterprint', handleAfterPrint);
-    };
-  }, []);
-
   const handleSearchChange = (value: string): void => {
     setSearchValue(value);
   };
@@ -61,13 +37,20 @@ const Home: React.FC = () => {
 
   const handlePrintClick = (): void => {
     setIsPrinting(true);
-    // Allow React to re-render with all accordions open before triggering print
-    setTimeout(() => {
-      window.print();
-    }, 0);
+    setTimeout(() => window.print(), 0);
   };
 
-  const allUserIds = filteredUsers.map((user) => user.id);
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+      user.description.toLowerCase().includes(searchValue.toLowerCase()),
+  );
+
+  useEffect(() => {
+    const handleAfterPrint = (): void => setIsPrinting(false);
+    window.addEventListener('afterprint', handleAfterPrint);
+    return () => window.removeEventListener('afterprint', handleAfterPrint);
+  }, []);
 
   return (
     <>
@@ -79,7 +62,7 @@ const Home: React.FC = () => {
             </Text>
           </Flex>
         ) : isPrinting ? (
-          <AccordionRoot type="multiple" value={allUserIds}>
+          <AccordionRoot type="multiple" value={filteredUsers.map((u) => u.id)}>
             {filteredUsers.map((user) => (
               <ListItem key={user.id} user={user} />
             ))}

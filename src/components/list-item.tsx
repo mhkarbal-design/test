@@ -1,13 +1,13 @@
 import {
-  AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  AccordionContent,
   Box,
   Button,
   Flex,
-  Icon,
-  Skeleton,
   Text,
+  Skeleton,
+  Icon,
 } from '@ftv/ui';
 
 interface User {
@@ -46,12 +46,16 @@ export const ListItem: React.FC<ListItemProps> = ({
                 </Text>
               </Box>
             </Flex>
-            <Button className="no-print" label="Contact" variant="solid" />
+            <Flex>
+              <Button className="no-print" label="Contact" variant="solid" />
+            </Flex>
           </Flex>
         </AccordionTrigger>
         <AccordionContent>
-          <Box bg="light-gray" borderCorner="all" mt="3" p="3" className="accordion-print-content">
-            <Text size="3" weight="bold">Contact</Text>
+          <Box bg="light-gray" borderCorner="all" mt="3" p="3">
+            <Text size="3" weight="bold">
+              Contact
+            </Text>
             {user?.telephone ? (
               <Flex align="center" justify="between" mt="3">
                 <Flex align="center">
