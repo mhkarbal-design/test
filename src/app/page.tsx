@@ -1,6 +1,5 @@
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
-import { flushSync } from 'react-dom';
 import { AccordionRoot, Box, Flex, Text } from '@ftv/ui';
 import { FooterActions } from '../components/footer-actions';
 import { ListItem } from '../components/list-item';
@@ -46,10 +45,11 @@ const Home: React.FC = () => {
     return () => window.removeEventListener('afterprint', handleAfterPrint);
   }, []);
 
-  const handlePrintClick = () => {
-    flushSync(() => setIsPrinting(true));
-    window.print();
-  };
+  useEffect(() => {
+    if (isPrinting) window.print();
+  }, [isPrinting]);
+
+  const handlePrintClick = () => setIsPrinting(true);
 
   if (isError) {
     return (
