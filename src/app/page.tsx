@@ -1,78 +1,75 @@
 'use client';
-import { AccordionRoot, Box, Text, Flex } from '@ftv/ui';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { AccordionRoot, Box, Flex, Text } from '@ftv/ui';
 import { FooterActions } from '../components/footer-actions';
 import { ListItem } from '../components/list-item';
 import { useGetShiftsQuery } from '../models/graphql-types-hooks';
 import { formatDateForQuery } from '../helpers/date-formatter';
+import { usePrint } from '../hooks/use-print';
 
 const Home: React.FC = () => {
-  const [searchValue, setSearchValue] = useState('');
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [search, setSearch] = useState('');
+  const [date, setDate] = useState(new Date());
   const [openAccordionId, setOpenAccordionId] = useState('');
+  const { isPrinting, print } = usePrint();
 
   const { data, isLoading, isError } = useGetShiftsQuery({
-    date: formatDateForQuery(selectedDate),
+    date: formatDateForQuery(date),
   });
 
-  const shifts = data?.shifts ?? [];
-  const users = shifts.map((shift, index) => ({
-    id: `shift-${index}`,
-    name: `${shift.sPrenom ?? ''} ${shift.sNom}`.trim(),
-    description: shift.sFonction,
-    bureau: shift.sBureau,
-    telephone: shift.sTelephone,
-    portable: shift.sPortable,
-    professionnel: shift.sProfessionnel,
-  }));
-
-  const handleSearchChange = (value: string): void => {
-    setSearchValue(value);
-  };
-
-  const handleDateChange = (date: Date): void => {
-    setSelectedDate(date);
-  };
-
-  const handlePrintClick = (): void => {
-    window.print();
-  };
-
-  const filteredUsers = users.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-      user.description.toLowerCase().includes(searchValue.toLowerCase()),
+  const users = useMemo(
+    () =>
+      (data?.shifts ?? []).map((shift, index) => ({
+        id: `shift-${index}`,
+        name: `${shift.sPrenom ?? ''} ${shift.sNom}`.trim(),
+        description: shift.sFonction,
+        bureau: shift.sBureau,
+        telephone: shift.sTelephone,
+        portable: shift.sPortable,
+        professionnel: shift.sProfessionnel,
+      })),
+    [data],
   );
+
+  const filteredUsers = useMemo(() => {
+    const q = search.toLowerCase();
+    return users.filter(
+      (u) =>
+        u.name.toLowerCase().includes(q) ||
+        u.description.toLowerCase().includes(q),
+    );
+  }, [users, search]);
+
+  if (isError) {
+    return (
+      <Flex align="center" direction="column" p="6">
+        <Text color="red" size="3">
+          Une erreur est survenue lors du chargement des permanences.
+        </Text>
+      </Flex>
+    );
+  }
 
   return (
     <>
       <Box pb="8">
-        {isError ? (
-          <Flex align="center" direction="column" gap="2" p="6">
-            <Text color="red" size="3">
-              Une erreur est survenue lors du chargement des permanences.
-            </Text>
-          </Flex>
+        {isPrinting ? (
+          <AccordionRoot type="multiple" value={filteredUsers.map((u) => u.id)}>
+            {filteredUsers.map((user) => (
+              <ListItem key={user.id} user={user} />
+            ))}
+          </AccordionRoot>
         ) : (
-          <AccordionRoot
-            type="single"
-            value={openAccordionId}
-            onValueChange={setOpenAccordionId}
-          >
+          <AccordionRoot type="single" value={openAccordionId} onValueChange={setOpenAccordionId}>
             {isLoading
-              ? Array.from({ length: 10 }).map((_, index) => (
-                  // eslint-disable-next-line react/no-array-index-key -- no other key to use
-                  <ListItem key={String(index)} loading />
-                ))
-              : filteredUsers.map((user) => (
-                  <ListItem key={user.id} user={user} />
-                ))}
+              ? Array.from({ length: 10 }, (_, i) => <ListItem key={i} loading />)
+              : filteredUsers.map((user) => <ListItem key={user.id} user={user} />)}
           </AccordionRoot>
         )}
-        {!isLoading && !isError && filteredUsers.length === 0 && (
-          <Flex align="center" direction="column" gap="2" p="6">
+        {!isLoading && filteredUsers.length === 0 && (
+          <Flex align="center" direction="column" p="6">
             <Text size="3">
-              {searchValue
+              {search
                 ? 'Aucun résultat pour cette recherche.'
                 : 'Aucune permanence pour cette date.'}
             </Text>
@@ -80,9 +77,9 @@ const Home: React.FC = () => {
         )}
       </Box>
       <FooterActions
-        onDateChange={handleDateChange}
-        onPrintClick={handlePrintClick}
-        onSearchChange={handleSearchChange}
+        onDateChange={setDate}
+        onPrintClick={print}
+        onSearchChange={setSearch}
       />
     </>
   );

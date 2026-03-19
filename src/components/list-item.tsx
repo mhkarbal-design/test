@@ -1,14 +1,14 @@
 import React from 'react';
 import {
+  AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  AccordionContent,
   Box,
   Button,
   Flex,
-  Text,
-  Skeleton,
   Icon,
+  Skeleton,
+  Text,
 } from '@ftv/ui';
 
 interface User {
@@ -23,18 +23,13 @@ interface User {
 
 interface ListItemProps {
   user?: User;
-  key?: string;
   loading?: boolean;
 }
 
-export const ListItem: React.FC<ListItemProps> = ({
-  user,
-  key,
-  loading = false,
-}) => (
+export const ListItem: React.FC<ListItemProps> = ({ user, loading = false }) => (
   <Box bg="white" borderCorner="all" m="3" p="3" data-print-item>
     <Skeleton loading={loading}>
-      <AccordionItem value={user?.id || key || ''}>
+      <AccordionItem value={user?.id ?? ''}>
         <AccordionTrigger asChild>
           <Flex align="center" justify="between">
             <Flex align="center" gap="3">
@@ -47,9 +42,7 @@ export const ListItem: React.FC<ListItemProps> = ({
                 </Text>
               </Box>
             </Flex>
-            <Flex>
-              <Button className="no-print" label="Contact" variant="solid" />
-            </Flex>
+            <Button className="no-print" label="Contact" variant="solid" />
           </Flex>
         </AccordionTrigger>
         <AccordionContent>
@@ -61,9 +54,7 @@ export const ListItem: React.FC<ListItemProps> = ({
               <Flex align="center" justify="between" mt="3">
                 <Flex align="center">
                   <Icon color="gray" height="24" name="phone" width="24" />
-                  <Text ml="1" size="2">
-                    Téléphone
-                  </Text>
+                  <Text ml="1" size="2">Téléphone</Text>
                 </Flex>
                 <Button
                   color="yellow"
@@ -77,9 +68,7 @@ export const ListItem: React.FC<ListItemProps> = ({
               <Flex align="center" justify="between" mt="3">
                 <Flex align="center">
                   <Icon color="blue" height="24" name="phone" width="24" />
-                  <Text ml="1" size="2">
-                    Portable
-                  </Text>
+                  <Text ml="1" size="2">Portable</Text>
                 </Flex>
                 <Button
                   color="yellow"
@@ -93,9 +82,7 @@ export const ListItem: React.FC<ListItemProps> = ({
               <Flex align="center" justify="between" mt="3">
                 <Flex align="center">
                   <Icon color="red" height="24" name="phone" width="24" />
-                  <Text ml="1" size="2">
-                    Professionnel
-                  </Text>
+                  <Text ml="1" size="2">Professionnel</Text>
                 </Flex>
                 <Button
                   color="yellow"
