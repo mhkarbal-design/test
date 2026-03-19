@@ -1,6 +1,6 @@
 'use client';
 import { AccordionRoot, Box, Text, Flex } from '@ftv/ui';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FooterActions } from '../components/footer-actions';
 import { ListItem } from '../components/list-item';
 import { useGetShiftsQuery } from '../models/graphql-types-hooks';
@@ -10,7 +10,7 @@ const Home: React.FC = () => {
   const [searchValue, setSearchValue] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isPrinting, setIsPrinting] = useState(false);
-  const accordionValueRef = useRef<string>('');
+  const [openAccordionId, setOpenAccordionId] = useState('');
 
   const { data, isLoading, isError } = useGetShiftsQuery({
     date: formatDateForQuery(selectedDate),
@@ -87,10 +87,8 @@ const Home: React.FC = () => {
         ) : (
           <AccordionRoot
             type="single"
-            value={accordionValueRef.current}
-            onValueChange={(value) => {
-              accordionValueRef.current = value;
-            }}
+            value={openAccordionId}
+            onValueChange={setOpenAccordionId}
           >
             {isLoading
               ? Array.from({ length: 10 }).map((_, index) => (
