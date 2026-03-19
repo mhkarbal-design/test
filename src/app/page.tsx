@@ -5,13 +5,11 @@ import { FooterActions } from '../components/footer-actions';
 import { ListItem } from '../components/list-item';
 import { useGetShiftsQuery } from '../models/graphql-types-hooks';
 import { formatDateForQuery } from '../helpers/date-formatter';
-import { usePrint } from '../hooks/use-print';
 
 const Home: React.FC = () => {
   const [search, setSearch] = useState('');
   const [date, setDate] = useState(new Date());
   const [openAccordionId, setOpenAccordionId] = useState('');
-  const { isPrinting, print } = usePrint();
 
   const { data, isLoading, isError } = useGetShiftsQuery({
     date: formatDateForQuery(date),
@@ -53,19 +51,11 @@ const Home: React.FC = () => {
   return (
     <>
       <Box pb="8">
-        {isPrinting ? (
-          <AccordionRoot type="multiple" value={filteredUsers.map((u) => u.id)}>
-            {filteredUsers.map((user) => (
-              <ListItem key={user.id} user={user} />
-            ))}
-          </AccordionRoot>
-        ) : (
-          <AccordionRoot type="single" value={openAccordionId} onValueChange={setOpenAccordionId}>
-            {isLoading
-              ? Array.from({ length: 10 }, (_, i) => <ListItem key={i} loading />)
-              : filteredUsers.map((user) => <ListItem key={user.id} user={user} />)}
-          </AccordionRoot>
-        )}
+        <AccordionRoot type="single" value={openAccordionId} onValueChange={setOpenAccordionId}>
+          {isLoading
+            ? Array.from({ length: 10 }, (_, i) => <ListItem key={i} loading />)
+            : filteredUsers.map((user) => <ListItem key={user.id} user={user} />)}
+        </AccordionRoot>
         {!isLoading && filteredUsers.length === 0 && (
           <Flex align="center" direction="column" p="6">
             <Text size="3">
@@ -78,7 +68,7 @@ const Home: React.FC = () => {
       </Box>
       <FooterActions
         onDateChange={setDate}
-        onPrintClick={print}
+        onPrintClick={() => window.print()}
         onSearchChange={setSearch}
       />
     </>

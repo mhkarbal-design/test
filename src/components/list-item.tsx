@@ -45,7 +45,7 @@ export const ListItem: React.FC<ListItemProps> = ({ user, loading = false }) => 
             <Button className="no-print" label="Contact" variant="solid" />
           </Flex>
         </AccordionTrigger>
-        <AccordionContent>
+        <AccordionContent forceMount>
           <Box bg="light-gray" borderCorner="all" mt="3" p="3">
             <Text size="3" weight="bold">
               Contact
